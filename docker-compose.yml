@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:12.13-alpine3.17
+    container_name: db
+    hostname: db
+    volumes:
+      - './data:/var/lib/postgresql/data:rw'
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  votingapp:
+    build: ./docker
+    container_name: votingapp
+    hostname: votingapp
+    ports:
+     - '8000:8000'
+     - '2022:22'
+    volumes:
+      - './votingapp:/home/votingapp'
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - DJANGO_SUPERUSER_PASSWORD=NWXdVnFZYfaNg4kAV5v4
+    working_dir: /home/votingapp
+    entrypoint: /bin/sh /docker_entrypoint.sh
+    depends_on:
+      - db

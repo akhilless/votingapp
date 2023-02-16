@@ -1,0 +1,10 @@
+Django==4.1.6
+psycopg2-binary==2.9.5
+djangorestframework==3.14.0
+django-filter==22.1
+django-extensions==3.2.1
+markdown==3.4.1
+drf-spectacular==0.25.1
+pytest==7.2.1
+pytest-django==4.5.2
+time-machine==2.9.0
