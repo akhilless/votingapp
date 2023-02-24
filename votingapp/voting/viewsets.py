@@ -2,6 +2,8 @@ from datetime import date
 
 from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
@@ -11,15 +13,57 @@ from voting.models import Restaurant, VotingUser
 from .serializers import RestaurantSerializer, VoteSerializer, VotingUserSerializer
 
 
+@extend_schema_view()
 class VotingUserViewSet(viewsets.ModelViewSet):
     queryset = VotingUser.objects.order_by("-pk").all()
     serializer_class = VotingUserSerializer
 
 
+@extend_schema_view()
 class RestaurantViewSet(viewsets.ModelViewSet):
     queryset = Restaurant.objects.order_by("-pk").all()
     serializer_class = RestaurantSerializer
 
+    @extend_schema(
+        description="Returns 3 restaurants with highest number of votes for a provided date",
+        parameters=[
+            OpenApiParameter(
+                name="date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                description="Filter by voting date; must be in ISO format",
+                examples=[
+                    OpenApiExample(
+                        'Retrieve winners for January 1, 2023',
+                        value="2023-01-31"
+                    )
+                ]
+            )
+        ],
+        examples=[
+            OpenApiExample(
+                'Response example',
+                value={
+                    "count": 2,
+                    "winners": [
+                        {
+                            "id": 58,
+                            "name": "Test restaurant 1",
+                            "total_votes": 12.50,
+                            "num_voters": 10
+                        },
+                        {
+                            "id": 341,
+                            "name": "Test restaurant 2",
+                            "total_votes": 5,
+                            "num_voters": 5
+                        }
+                    ]
+                },
+                response_only=True,
+            )
+        ]
+    )
     @action(methods=["get"], detail=False, url_path="winners")
     def get_winners(self, request):
         try:
@@ -47,7 +91,35 @@ class RestaurantViewSet(viewsets.ModelViewSet):
         winners_list = list(winners)
         return Response({'count': len(winners_list), 'winners': winners_list}, status=status.HTTP_200_OK)
 
-
+    @extend_schema(
+        description="Vote for a restaurant",
+        parameters=[
+            OpenApiParameter(
+                name="restaurant_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="Restaurant id to vote for",
+                examples=[
+                    OpenApiExample(
+                        'Restaurant id parameter example',
+                        value=21
+                    )
+                ]
+            )
+        ],
+        examples=[
+            OpenApiExample(
+                'Request example',
+                value={"user_id": 120},
+                request_only=True
+            ),
+            OpenApiExample(
+                'Response example',
+                value={"restaurant_id": 21, "user_id": 120, "remaining_limit": 3},
+                response_only=True
+            )
+        ],
+    )
     @action(methods=["post"], detail=True)
     def vote(self, request, pk=None):
         serializer = VoteSerializer(data=request.data)
