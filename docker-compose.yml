@@ -3,8 +3,6 @@ services:
     image: postgres:12.13-alpine3.17
     container_name: db
     hostname: db
-    volumes:
-      - './data:/var/lib/postgresql/data:rw'
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
