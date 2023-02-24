@@ -160,8 +160,8 @@ def test_winners_counts_only_votes_on_the_same_day(client, setup_vote_tests):
         data={"date": (date.today() - timedelta(days=1)).isoformat()},
     )
     assert status.is_success(response.status_code)
-    winners = response.data['winners']
-    assert response.data['count'] == 1
+    winners = response.data["winners"]
+    assert response.data["count"] == 1
     assert len(winners) == 1
     assert winners[0]["id"] == restaurant_id
     assert winners[0]["total_votes"] == 2.0
@@ -170,8 +170,8 @@ def test_winners_counts_only_votes_on_the_same_day(client, setup_vote_tests):
     response = client.get(
         reverse("restaurant-get-winners"), data={"date": date.today().isoformat()}
     )
-    winners = response.data['winners']
-    assert response.data['count'] == 1
+    winners = response.data["winners"]
+    assert response.data["count"] == 1
     assert len(winners) == 1
     assert winners[0]["id"] == restaurant_id
     assert winners[0]["total_votes"] == 1.0
@@ -208,8 +208,8 @@ def test_winners_restaurant_with_more_votes_wins(client, setup_vote_tests):
         reverse("restaurant-get-winners"), data={"date": date.today().isoformat()}
     )
     assert status.is_success(response.status_code)
-    winners = response.data['winners']
-    assert response.data['count'] == 2
+    winners = response.data["winners"]
+    assert response.data["count"] == 2
     assert len(winners) == 2
     assert winners[0]["id"] == restaurant_ids[1]
     assert winners[0]["total_votes"] == 2.0
@@ -252,8 +252,8 @@ def test_winners_when_votes_are_equal_restaurant_with_more_voters_wins(
         reverse("restaurant-get-winners"), data={"date": date.today().isoformat()}
     )
     assert status.is_success(response.status_code)
-    winners = response.data['winners']
-    assert response.data['count'] == 2
+    winners = response.data["winners"]
+    assert response.data["count"] == 2
     assert len(winners) == 2
     assert winners[0]["id"] == restaurant_ids[1]
     assert winners[0]["total_votes"] == 2.0
